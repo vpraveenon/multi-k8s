@@ -20,3 +20,39 @@ stages:
        docker build -t vpraveenon/client-test -f client/Dockerfile.dev client/
        docker run -e CI=true vpraveenon/client-test npm run test -- --coverage 
 
+- stage: BuildProdImage
+  displayName: Build the production images one by one
+  jobs:
+    - job: ClientProdBuild
+      displayName: Build and push the client image
+      steps:
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'DockerHub'
+          repository: 'vpraveenon/multi-client'
+          command: 'buildAndPush'
+          Dockerfile: 'client/Dockerfile'
+          tags: |
+            latest
+    - job: ServerProdBuild
+      displayName: Build and push the Server image
+      steps:
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'DockerHub'
+          repository: 'vpraveenon/multi-server'
+          command: 'buildAndPush'
+          Dockerfile: 'server/Dockerfile'
+          tags: |
+            latest
+    - job: WorkerProdBuild
+      displayName: Build and push the worker image
+      steps:
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'DockerHub'
+          repository: 'vpraveenon/multi-worker'
+          command: 'buildAndPush'
+          Dockerfile: 'worker/Dockerfile'
+          tags: |
+            latest
