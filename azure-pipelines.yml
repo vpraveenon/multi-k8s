@@ -59,6 +59,13 @@ stages:
           tags: |
             latest
             $(Build.BuildId)
+
+- stage: DeploytoK8S
+  displayName: Deploy the app to K8S
+  jobs:
+    - job: DeployAll
+      displayName: Apply all deployments and services
+      steps:
       - task: Kubernetes@1
         inputs:
           connectionType: 'Kubernetes Service Connection'
@@ -70,6 +77,9 @@ stages:
           containerRegistryType: 'Container Registry'
           dockerRegistryEndpoint: 'DockerHub'
           forceUpdate: false
+    - job: Refreshpods
+      displayName: Refresh the server, client and worker pods
+      steps:
       - task: Kubernetes@1
         inputs:
           connectionType: 'Kubernetes Service Connection'
