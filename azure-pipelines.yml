@@ -9,10 +9,6 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-variables:
-  name: SHA
-  value: $(git rev-parse HEAD)
-
 stages:
 - stage: BuildnTest
   displayName: Build and Test the client image
@@ -38,7 +34,7 @@ stages:
           Dockerfile: 'client/Dockerfile'
           tags: |
             latest
-            $(SHA)
+            $(Build.BuildId)
     - job: ServerProdBuild
       displayName: Build and push the Server image
       steps:
@@ -50,7 +46,7 @@ stages:
           Dockerfile: 'server/Dockerfile'
           tags: |
             latest
-            $(SHA)
+            $(Build.BuildId)
     - job: WorkerProdBuild
       displayName: Build and push the worker image
       steps:
@@ -62,7 +58,7 @@ stages:
           Dockerfile: 'worker/Dockerfile'
           tags: |
             latest
-            $(SHA)
+            $(Build.BuildId)
       - task: Kubernetes@1
         inputs:
           connectionType: 'Kubernetes Service Connection'
@@ -80,7 +76,7 @@ stages:
           kubernetesServiceEndpoint: 'multi-k8s-connection'
           namespace: 'default'
           command: 'set'
-          arguments: 'image deployments/server-deployment server=vpraveenon/multi-server:$(SHA)'
+          arguments: 'image deployments/server-deployment server=vpraveenon/multi-server:$(Build.BuildId)'
           secretType: 'dockerRegistry'
           containerRegistryType: 'Container Registry'
           dockerRegistryEndpoint: 'DockerHub'
@@ -91,7 +87,7 @@ stages:
           kubernetesServiceEndpoint: 'multi-k8s-connection'
           namespace: 'default'
           command: 'set'
-          arguments: 'image deployments/client-deployment server=vpraveenon/multi-client:$(SHA)'
+          arguments: 'image deployments/client-deployment server=vpraveenon/multi-client:$(Build.BuildId)'
           secretType: 'dockerRegistry'
           containerRegistryType: 'Container Registry'
           dockerRegistryEndpoint: 'DockerHub'
@@ -102,8 +98,9 @@ stages:
           kubernetesServiceEndpoint: 'multi-k8s-connection'
           namespace: 'default'
           command: 'set'
-          arguments: 'image deployments/worker-deployment server=vpraveenon/multi-worker:$(SHA)'
+          arguments: 'image deployments/worker-deployment server=vpraveenon/multi-worker:$(Build.BuildId)'
           secretType: 'dockerRegistry'
           containerRegistryType: 'Container Registry'
           dockerRegistryEndpoint: 'DockerHub'
           forceUpdate: false
+      
