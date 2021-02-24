@@ -38,7 +38,6 @@ stages:
           Dockerfile: 'client/Dockerfile'
           tags: |
             latest
-            $(Build.BuildId)
             $(SHA)
     - job: ServerProdBuild
       displayName: Build and push the Server image
@@ -51,7 +50,6 @@ stages:
           Dockerfile: 'server/Dockerfile'
           tags: |
             latest
-            $(Build.BuildId)
             $(SHA)
     - job: WorkerProdBuild
       displayName: Build and push the worker image
@@ -64,7 +62,48 @@ stages:
           Dockerfile: 'worker/Dockerfile'
           tags: |
             latest
-            $(Build.BuildId)
             $(SHA)
-      
-            
+      - task: Kubernetes@1
+        inputs:
+          connectionType: 'Kubernetes Service Connection'
+          kubernetesServiceEndpoint: 'multi-k8s-connection'
+          namespace: 'default'
+          command: 'apply'
+          arguments: '-f k8s'
+          secretType: 'dockerRegistry'
+          containerRegistryType: 'Container Registry'
+          dockerRegistryEndpoint: 'DockerHub'
+          forceUpdate: false
+      - task: Kubernetes@1
+        inputs:
+          connectionType: 'Kubernetes Service Connection'
+          kubernetesServiceEndpoint: 'multi-k8s-connection'
+          namespace: 'default'
+          command: 'set'
+          arguments: 'image deployments/server-deployment server=vpraveenon/multi-server:$(SHA)'
+          secretType: 'dockerRegistry'
+          containerRegistryType: 'Container Registry'
+          dockerRegistryEndpoint: 'DockerHub'
+          forceUpdate: false
+      - task: Kubernetes@1
+        inputs:
+          connectionType: 'Kubernetes Service Connection'
+          kubernetesServiceEndpoint: 'multi-k8s-connection'
+          namespace: 'default'
+          command: 'set'
+          arguments: 'image deployments/client-deployment server=vpraveenon/multi-client:$(SHA)'
+          secretType: 'dockerRegistry'
+          containerRegistryType: 'Container Registry'
+          dockerRegistryEndpoint: 'DockerHub'
+          forceUpdate: false
+      - task: Kubernetes@1
+        inputs:
+          connectionType: 'Kubernetes Service Connection'
+          kubernetesServiceEndpoint: 'multi-k8s-connection'
+          namespace: 'default'
+          command: 'set'
+          arguments: 'image deployments/worker-deployment server=vpraveenon/multi-worker:$(SHA)'
+          secretType: 'dockerRegistry'
+          containerRegistryType: 'Container Registry'
+          dockerRegistryEndpoint: 'DockerHub'
+          forceUpdate: false
