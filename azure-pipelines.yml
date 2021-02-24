@@ -4,7 +4,7 @@
 # https://aka.ms/yaml
 
 trigger:
-- master
+- none
 
 pool:
   vmImage: ubuntu-latest
@@ -97,7 +97,7 @@ stages:
           kubernetesServiceEndpoint: 'multi-k8s-connection'
           namespace: 'default'
           command: 'set'
-          arguments: 'image deployments/client-deployment server=vpraveenon/multi-client:$(Build.BuildId)'
+          arguments: 'image deployments/client-deployment client=vpraveenon/multi-client:$(Build.BuildId)'
           secretType: 'dockerRegistry'
           containerRegistryType: 'Container Registry'
           dockerRegistryEndpoint: 'DockerHub'
@@ -108,7 +108,7 @@ stages:
           kubernetesServiceEndpoint: 'multi-k8s-connection'
           namespace: 'default'
           command: 'set'
-          arguments: 'image deployments/worker-deployment server=vpraveenon/multi-worker:$(Build.BuildId)'
+          arguments: 'image deployments/worker-deployment worker=vpraveenon/multi-worker:$(Build.BuildId)'
           secretType: 'dockerRegistry'
           containerRegistryType: 'Container Registry'
           dockerRegistryEndpoint: 'DockerHub'
